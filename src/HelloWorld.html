@@ -1,24 +1,51 @@
 <!DOCTYPE html>
-<html ng-app>
+<html ng-app=myApp>
 <head>
-	<title>Simple app</title>
-	<script src="E:\source\repositories\Blue-Lotus-Angularjs\lib\angular.js"></script>
+<script src="F:\code\github\Blue-Lotus-Angularjs\lib\angular.js"></script>
 </head>
 <body>
-	<div ng-controller='MyController'>
-		<input ng-model="person.name" type="text" placeholder="Your Name" >
-		<h1>Helle {{ person.name }}</h1>
-	</div>
-	<script type="text/javascript">
-	function MyController($scope, $timeout){
-		var updateClock = function(){
-			$scope.clock = new Date();
-			$timeout(function(){
-				updateClock();
-			}, 1000);
-		};
-		updateClock();
+<div ng-controller="MyController">
+  <h1> {{author.name.firstName}} . {{author.name.lastName}}</h1>
+  <p> {{author.title + ', ' + author.company}}</p>
+</div>
+<div ng-controller="MyFirstController">
+	<h2>{{ message }}</h2>
+	<button ng-click="add(1)">Add</button>
+	<a href="javascript:void(0)" ng-click="substract(1)">Sub</a>
+	<h4>Current count:{{ counter }}</h4>
+
+	<p> {{ author }}</p>
+	<div ng-controller="ChildController"><a href="javascript:void" ng-click="sayHello()">sayHello</a></div>
+</div>
+<script type="text/javascript">
+var app = angular.module('myApp', []);
+app.controller('MyController', function($scope){
+	$scope.author = {
+		'name' : {'firstName':'sheldon', 'lastName':'shi'},
+		'title' : 'Mr',
+		'company' : 'zjslj'
 	};
-	</script>
+});
+app.controller('MyFirstController', function($scope){
+	$scope.message = 'Hello World!',
+	$scope.counter = 0;
+	$scope.author = {
+		'name' : {'firstName':'sheldon', 'lastName':'shi'},
+		'title' : 'Mr',
+		'company' : 'ZJSLJ'
+	};
+	$scope.add = function(num){
+		$scope.counter += num;
+	}
+	$scope.substract = function(num){
+		$scope.counter -= num;
+	}
+});
+app.controller('ChildController',  function($scope){
+	$scope.sayHello = function(){
+		$scope.author.nationality = 'China';
+	};
+});
+</script>
 </body>
 </html>
