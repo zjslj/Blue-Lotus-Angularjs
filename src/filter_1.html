@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html ng-app=myApp>
+<head>
+<script src="F:\code\github\Blue-Lotus-Angularjs\lib\angular.js"></script>
+<script src="F:\code\github\Blue-Lotus-Angularjs\lib\angular-messages.js"></script>
+</head>
+<body>
+<div>
+	<form name="signup_form" novalidate ng-submit="signupForm()" ng-controller="signupController">
+		<label>Your name</label>
+		<input type="text" placeholder="Name" name="name" ng-model="signup.name" ng-minlength=3 ng-maxlength=20 required />
+		<div class="error" ng-messages="signup_form.name.$error">
+			<div ng-message="required">Make sure you enter your name</div>
+			<div ng-message="minlength">Your name must be at least 3 characters</div>
+			<div ng-message="maxlength">Your name cannot be longer than 20 characters</div>
+		</div>
+		<button type="submit">Submit</button>
+	</form>
+</div>
+<script type="text/javascript">
+var app = angular.module('myApp', ['ngMessages']);
+	app.controller('signupController', function(){
+	
+});
+
+</script>
+</body>

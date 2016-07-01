@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html ng-app=myApp>
+<head>
+<script src="F:\code\github\Blue-Lotus-Angularjs\lib\angular.js"></script>
+</head>
+<body>
+<div ng-controller="MyController">
+	<p>{{ 123.4567 | number:2 }}</p>
+	<p>{{ 123.4567 | currency }}</p>
+	<p>{{ ['Ari','Lerner','Likes','To','Eat','Pizza'] | filter:'e' }}</p>
+	<p>{{ [{
+			'name': 'Ari',
+			'City': 'San Francisco',
+			'favorite food': 'Pizza'
+			},{
+			'name': 'Nate',
+			'City': 'San Francisco',
+			'favorite food': 'indian food'
+			}] | filter:{'favorite food': 'Pizza'} }}
+		</p>
+	<p>{{ ['Ari','likes','to','travel'] | filter:isCapitalized }}</p>
+	<p>{{ {'name': 'Ari', 'City': 'SanFrancisco'} | json }}</p>
+</div>
+<div>
+	<form name="signup_form" novalidate ng-submit="signupForm" ng-controller="signupController">
+		<fieldset>
+			<legend>Signup</legend>
+			<div class="row">
+				<div class="large-12 columns">
+					<label>Your name</label>
+					<input type="text" placeholder="Name" name="name" ng-model="signup.name" ng-minlength="3" ng-maxlength="20" required />
+					<div class="error" ng-show="signup_form.name.$dirty && signup_form.name.$invalid && signup_form.submitted">
+						<small class="error" ng-show="signup_form.name.$error.required">
+							Your name is required.
+						</small>
+						<small class="error" ng-show="signup_form.name.$error.minlength">
+							Your name is required to be at least 3 characters
+						</small>
+						<small class="error" ng-show="signup_form.name.$error.maxlength">
+							Your name cannot be longer than 20 characters
+						</small>
+					</div>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="large-12 columns">
+					<label>Your email</label>
+					<input type="email" placeholder="Email" name="email" ng-model="signup.email" ng-class="{error:signup_form.email.$dirty && signup_form.email.$invalid}" ng-minlength="3" ng-maxlength="20" required />
+					<div class="error" ng-show="signup_form.email.$dirty && signup_form.email.$invalid && !signup_form.email.$focused">
+						<small class="error" ng-show="signup_form.email.$error.required">
+							Your email is required.
+						</small>
+						<small class="error" ng-show="signup_form.email.$error.minlength">
+							Your email is required to be at least 3 characters
+						</small>
+						<small class="error" ng-show="signup_form.email.$error.email">
+							That is not a valid email. Please input a valid email.
+						</small>
+						<small class="error" ng-show="signup_form.email.$error.maxlength">
+							Your email cannot be longer than 20 characters
+						</small>
+					</div>
+				</div>
+			</div>
+			<br>
+			<div class="large-12 columns">
+			<label>Username</label>
+			<input type="text" placeholder="Desired username" name="username" ng-model="signup.username" ng-minlength="3" ng-maxlength="20" ensure-unique="username" required />
+				<div class="error" ng-show="signup_form.username.$dirty && signup_form.username.$invalid">
+					<small class="error" ng-show="signup_form.username.$error.required">
+						Please input a username
+					</small>
+					<small class="error" ng-show="signup_form.username.$error.minlength">
+						Your username is required to be at least 3 characters
+					</small>
+					<small class="error" ng-show="signup_form.username.$error.maxlength">
+						Your username cannot be longer than 20 characters
+					</small>
+					<small class="error" ng-show="signup_form.username.$error.unique">
+						That username is taken, please try another
+					</small>
+				</div>
+			</div>
+			<button type="submit" ng-disabled="signup_form.$invalid" class="button radius">Submit</button>
+		</fieldset>
+	</form>
+</div>
+<script type="text/javascript">
+var app = angular.module('myApp', []);
+app.controller('MyController', function($scope){
+	$scope.isCapitalized = function(str){
+		return str[0] == str[0].toUpperCase();
+	}
+});
+angular.module('myApp.filters', []).filter('capitalize', function(){
+	return function(input){
+		if(input)
+			return input[0].toUpperCase()+input.slice(1);
+	}
+});
+app.controller('signupController', function(){
+	
+});
+app.directive('ensureUnique',  function($http){
+	// Runs during compile
+	return {
+		// name: '',
+		// priority: 1,
+		// terminal: true,
+		// scope: {}, // {} = isolate, true = child, false/undefined = no change
+		// controller: function($scope, $element, $attrs, $transclude) {},
+		// require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+		// restrict: 'A', // E = Element, A = Attribute, C = Class, M = Comment
+		// template: '',
+		// templateUrl: '',
+		// replace: true,
+		// transclude: true,
+		// compile: function(tElement, tAttrs, function transclude(function(scope, cloneLinkingFn){ return function linking(scope, elm, attrs){}})),
+		require : 'ngModel',
+		link: function($scope, ele, attrs, c) {
+			$scope.$watch(attrs.ngModel, function(n){
+				if(!n) return;
+				$http({
+					method : 'POST',
+					url : '/api/check/' + attrs.ensureUnique,
+					data : {
+						field : attrs.ensureUnique,
+						value : $scope.ngModel		
+					}
+				}).success(function(data){
+					c.$setValidity('unique', data.isUnique);
+				}).error(function(data){
+					c.$setValidity('unique', false);
+				});
+			});
+		}
+	};
+});
+app.directive('ngFocus', [function(){
+	var FOCUS_CLASS = "ng-focused";
+	// Runs during compile
+	return {
+		// name: '',
+		// priority: 1,
+		// terminal: true,
+		// scope: {}, // {} = isolate, true = child, false/undefined = no change
+		// controller: function($scope, $element, $attrs, $transclude) {},
+		require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+		restrict: 'A', // E = Element, A = Attribute, C = Class, M = Comment
+		// template: '',
+		// templateUrl: '',
+		// replace: true,
+		// transclude: true,
+		// compile: function(tElement, tAttrs, function transclude(function(scope, cloneLinkingFn){ return function linking(scope, elm, attrs){}})),
+		link: function(scope, iElm, iAttrs, controller) {
+			controller.$focused = false;
+			iElm.bind('focus', function(evt){
+				iElm.addClass(FOCUS_CLASS);
+				scope.$apply(function(){
+					controller.$focused = true;
+				});
+			}).bind('blur', function(evt){
+				iElm.removeClass(FOCUS_CLASS);
+				scope.$apply(function(){
+					controller.$focused = false;
+				});
+			});
+		}
+	};
+}]);
+</script>
+</body>
