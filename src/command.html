@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<title>command test</title>
+	<script src="F:\code\github\Blue-Lotus-Angularjs\lib\angular.js"></script>
+</head>
+<body>
+<div>
+	<p>command test</p>
+	<label>Their url field:</label>
+	<input type="text" ng-model="theirUrl">
+	<div my-directive
+		some-attr="theirUrl"
+		my-link-text="Click me  qq">
+		</div>	
+	<h5 ng-init="greeting='hello'">greet {{ greeting}}</h5>
+</div>
+<p>we can access {{ rootProperty }}</p>
+<div ng-controller="ParentController">
+	<p>
+		We can access: {{ rootProperty }} and {{parentProperty}}
+	</p>
+	<div ng-controller="ChildController">
+		<p>
+			we can access:{{ rootProperty }} and {{ parentProperty}} and {{ childProperty}}
+		</p>
+		<p> {{ fullSentenceFromChild }} </p>
+	</div>
+</div>
+<script type="text/javascript">
+/*angular.module('myApp', [])
+.directive('myDirective', function(){
+	return {
+		restrict: 'A',
+		replace : true,
+		template : '<a href="http://www.qq.com">Click</a>'
+	};
+});*/
+angular.module('myApp', [])
+.run(function($rootScope){
+	$rootScope.rootProperty = 'root scope';
+})
+.controller('ParentController',  function($scope){
+	$scope.parentProperty = 'parent scope';
+})
+.controller('ChildController', function($scope){
+	$scope.childProperty = 'child scope';
+	$scope.fullSentenceFromChild = 'Same $scope: We can access : ' + 
+			$scope.rootProperty + ' and ' + 
+			$scope.parentProperty + ' and ' +
+			$scope.childProperty
+})
+.directive('myDirective', function(){
+	return {
+		restrict: 'A',
+		replace : true,
+		scope : {
+				myUrl : '=someAttr',
+				myLinkText : '@'
+		},
+		template : '\
+			<div> \
+				<label> My url fiel: </label>\
+				<input type="text" \
+					ng-model="myUrl" /> \
+					<a href="{{myUrl}}">{{myLinkText}} </a> \
+					</div>'
+	};
+});
+</script>
+</body>
+</html>
