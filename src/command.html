@@ -3,6 +3,23 @@
 <head>
 	<title>command test</title>
 	<script src="F:\code\github\Blue-Lotus-Angularjs\lib\angular.js"></script>
+	<style type="text/css" media="screen">
+		.odd {
+			background-color: blue;
+		}
+		.even {
+			background-color: red;
+		}
+		input.ng-invalid {
+			border: 1px solid red;
+		}
+		input.ng-valid {
+			border: 1px solid green;
+		}
+		.red {
+			background-color: red;
+		}
+	</style>		
 </head>
 <body>
 <div>
@@ -26,7 +43,103 @@
 		</p>
 		<p> {{ fullSentenceFromChild }} </p>
 	</div>
-</div>
+	<input type="text" ng-model="someProperty" placeholder="Type to Enable" />
+	<button ng-model="button" ng-disabled="!someProperty">Button</button>
+	<br>
+	<textarea ng-disabled="isDisabled">Wait 5 Seconds</textarea>
+	<p>------------------------------------------------------------------</p>
+	Readonly:
+	<input type="text" ng-model="someProperty1" /> 
+	<br>
+	<input type="text" ng-readonly="someProperty1" value="placeholder" />
+	<p>------------------------------------------------------------------</p>
+	<label>someProperty2 = {{ someProperty2 }}</label>
+	<input type="checkbox" ng-checked="someProperty2" ng-init="someProperty2=true" ng-model="someProperty2" />
+	<p>------------------------------------------------------------------</p>
+	<label>select two fish:</label>
+	<input type="checkbox" ng-model="isTwoFish" /> <br>
+	<select>
+		<option>one fish</option>
+		<option ng-selected="isTwoFish">Two fish</option>}
+	</select>
+	<p>------------------------------------------------------------------</p>
+	<a ng-href="{{ myHref }}">click click click</a>
+	<h1>Image</h1>
+	<img ng-src="{{ imgSrc }}" />
+	<p>------------------------------------------------------------------</p>
+	<div ng-controller="SomeController">
+		<!--
+		{{ someModel.someProperty }}		
+		<button ng-click="someAction()">Communicate</button>
+		-->
+		{{ someModel.someValue }}
+		<button ng-click="someAction()">Communicate to child</button>
+		<div ng-controller="ChildController">
+			{{ someModel.someValue  }}
+			<button ng-click="childAction()">Communicate to parent</button>
+		</div>
+	</div>
+	<input type="text" ng-model="person.name">
+	<div ng-switch on="person.name">
+		<p ng-switch-default>And the winner is</p>
+		<h5 ng-switch-when="sheldonshi">{{ person.name }}</h5>
+	</div>
+	<p>------------------------------------------------------------------</p>
+	<ul ng-controller="PeopleController">
+		<li ng-repeat="person in people" ng-class="{even:!$even, odd:!$odd}">
+			{{ person.name }} lives in {{ person.city }}
+		</li>
+	</ul>
+	<p>------------------------------------------------------------------</p>
+	<div ng-controller="EquationController">
+		<input type="text" ng-model="equation.x" ng-change="change()" />
+		<code>{{ equation.output }}</code>
+	</div>
+	<p>------------------------------------------------------------------</p>
+	<form name="signup_form" ng-controller="FormController" ng-submit="submitForm()" novalidate>
+		<div ng-repeat="field in fields" ng-form="signup_form_input">
+			<input type="text" name="dynamic_input" ng-required="field.isRequired" ng-model="field.name" placeholder="{{field.placeholder}}" />
+			<div ng-show="signup_form_input.dynamic_input.$dirty && signup_form_input.dynamic_input.$invalid">
+				<span class="error" ng-show="signup_form_input.dynamic_input.$error.required">
+					The field is required.
+				</span>
+			</div>
+		</div>
+		<button type="submit" ng-disabled="signup_form.$invalid">
+			Submit All
+		</button>
+	</form>
+	<p>------------------------------------------------------------------</p>
+	<div ng-controller="CounterController">
+		<button ng-click="count=count+1" ng-init="count=0">
+        increment
+		</button>
+		<p>count: {{ count }}</p>
+		<button ng-click="decrement()">
+        decrement
+		</button>
+	</div>
+	<p>------------------------------------------------------------------</p>
+	<div ng-controller="CityController">
+		<select ng-model="city" ng-options="city.name for city in cities">
+			<option value="">Choose City</option>
+		</select>
+		Best City: {{city.name}}
+	</div>
+	<p>------------------------------------------------------------------</p>
+	<div ng-controller="LotteryController">
+		<button ng-click="x=generateNumber()" ng-init="x=0">
+			Draw Number
+		</button>
+		<p>Number is : {{ x }}</p>
+		<div ng-class="{red:x > 5}" ng-if="x>5">
+			won!
+		</div>
+	</div>
+	<p>------------------------------------------------------------------</p>
+	<p>------------------------------------------------------------------</p>
+	<p>------------------------------------------------------------------</p>
+	<p>------------------------------------------------------------------</p>
 <script type="text/javascript">
 /*angular.module('myApp', [])
 .directive('myDirective', function(){
@@ -40,15 +153,21 @@ angular.module('myApp', [])
 .run(function($rootScope){
 	$rootScope.rootProperty = 'root scope';
 })
-.controller('ParentController',  function($scope){
+.controller('ParentController',  function($scope, $timeout){
 	$scope.parentProperty = 'parent scope';
+	$scope.isDisabled = true;
+	$timeout(function(){
+		$scope.isDisabled = false;
+		$scope.myHref = 'http://www.qq.com';
+		$scope.imgSrc = 'http://mat1.gtimg.com/www/images/qq2012/qqlogo_aoyun_filter.png';
+	},2000);
 })
 .controller('ChildController', function($scope){
 	$scope.childProperty = 'child scope';
 	$scope.fullSentenceFromChild = 'Same $scope: We can access : ' + 
 			$scope.rootProperty + ' and ' + 
 			$scope.parentProperty + ' and ' +
-			$scope.childProperty
+			$scope.childProperty;
 })
 .directive('myDirective', function(){
 	return {
@@ -66,7 +185,78 @@ angular.module('myApp', [])
 					<a href="{{myUrl}}">{{myLinkText}} </a> \
 					</div>'
 	};
-});
+})
+.controller('SomeController',  function($scope){
+	$scope.someModel = {
+		someValue : 'hello angular js'
+	};
+	$scope.someAction = function(){
+		$scope.someModel.someValue = 'hello angular js, from parent';
+	};
+})
+.controller('ChildController',  function($scope){
+	$scope.childAction = function(){
+		$scope.someModel.someValue = 'hello angular js, from child';
+	};
+})
+.controller('PeopleController', function($scope){
+	$scope.people = [
+			{name : 'zj', city:'sz'},
+			{name : 'slj', city:'sz'}
+		];
+})
+// .controller('SomeController',  function($scope){
+// 	$scope.someModel = {
+// 				'someProperty' : 'hello angular js'
+// 			};
+// 	$scope.someAction = function(){
+// 		//console.log($scope.someModel.someProperty.indexOf('js') );
+// 		if($scope.someModel.someProperty.indexOf('js') != -1){
+// 			$scope.someModel.someProperty = 'hello csharp';	
+// 		}else{
+// 			$scope.someModel.someProperty = 'hello angular js';	
+// 		}
+		
+// 	};
+// })
+.controller('EquationController', function($scope){
+	$scope.equation = {};
+	$scope.change = function(){
+		$scope.equation.output = parseInt($scope.equation.x) + 2;
+	}
+})
+.controller('FormController', function($scope){
+	$scope.fields = [
+		{placeholder:'UserName', isRequired:true},
+		{placeholder:'Password', isRequired:true},
+		{placeholder:'Email(optional)', isRequired:false}
+	];
+
+	$scope.submitForm = function(){
+		alert("it works!");
+	};
+})
+.controller('CounterController', function($scope){
+	$scope.decrement = function(){
+		$scope.count -= 1;
+	};
+})
+.controller('CityController', function($scope){
+	$scope.cities = [
+			{name:'Shenzhen'},
+			{name:'Changsha'},
+			{name:'hhht'},
+			{name:'Beijing'},
+			{name:'Shanghai'},
+			{name:'hk'}
+		];	
+})
+.controller('LotteryController', function($scope){
+	$scope.generateNumber = function(){
+		return Math.floor((Math.random()*10)+1);
+	}
+})
+;
 </script>
 </body>
 </html>
